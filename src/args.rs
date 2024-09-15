@@ -44,7 +44,7 @@ pub enum Language {
 /// In general, the search type is the full name of a class or method, unless you're
 /// searching for filenames.
 #[derive(Debug, Parser)]
-#[command(name = "qf2")]
+#[command(name = "qf")]
 #[command(version = "2.0")]
 pub(super) struct Args {
     /// What to search for, default is all usages. You can search for:
