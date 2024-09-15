@@ -1,6 +1,17 @@
 use clap::{Parser, ValueEnum};
+use thiserror::Error;
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Error, Debug)]
+pub enum ArgError {
+    #[error("Cannot use output style = import-errors without search mode = import")]
+    IllegalCleanImports,
+    #[error("With search mode = file, output style must be auto")]
+    IllegalFileOutputMode
+}
+
+type Result<T> = std::result::Result<T, ArgError>;
+
+#[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum SearchMode {
     AllUsage,
     Class,
@@ -9,8 +20,9 @@ pub enum SearchMode {
     Import
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum OutputStyle {
+    Auto,
     Coords,
     CleanImports,
     Quickfix
@@ -46,7 +58,7 @@ pub(super) struct Args {
     /// Specify how the output should be presented; these options are mostly aimed at helping text
     /// editors like vim jump to or present the locations. clean-imports will write you a new
     /// import based on found uses.
-    #[arg(value_enum, short, long, default_value_t=OutputStyle::Coords)]
+    #[arg(value_enum, short, long, default_value_t=OutputStyle::Auto)]
     pub output_style: OutputStyle,
 
     /// Provide a language hint. This is especially useful with --output-style clean-imports
@@ -64,4 +76,19 @@ pub(super) struct Args {
     /// Symbol to search for
     #[arg()]
     pub term: String
+}
+
+impl Args {
+    /// Check for illegal argument combinations and report any errors so we can panic early
+    pub fn validate(&self) -> Result<()> {
+        if self.output_style == OutputStyle::CleanImports && self.mode != SearchMode::Import {
+            return Err(ArgError::IllegalCleanImports);
+        }
+
+        if self.mode == SearchMode::File && self.output_style != OutputStyle::Auto {
+            return Err(ArgError::IllegalFileOutputMode);
+        }
+
+        Ok(())
+    }
 }
