@@ -9,7 +9,7 @@ pub enum AgError {
     #[error("Ag process error: {0}")]
     Process(#[from] io::Error),
     #[error("Non-utf8 output read from ag process")]
-    Utf8(#[from] FromUtf8Error)
+    Utf8(#[from] FromUtf8Error),
 }
 
 pub type Result<T> = std::result::Result<T, AgError>;

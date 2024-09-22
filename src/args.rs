@@ -6,7 +6,7 @@ pub enum ArgError {
     #[error("Cannot use output style = import-errors without search mode = import")]
     IllegalCleanImports,
     #[error("With search mode = file, output style must be auto")]
-    IllegalFileOutputMode
+    IllegalFileOutputMode,
 }
 
 type Result<T> = std::result::Result<T, ArgError>;
@@ -17,7 +17,7 @@ pub enum SearchMode {
     Class,
     File,
     Function,
-    Import
+    Import,
 }
 
 #[derive(Debug, Clone, PartialEq, ValueEnum)]
@@ -25,7 +25,7 @@ pub enum OutputStyle {
     Auto,
     Coords,
     CleanImports,
-    Quickfix
+    Quickfix,
 }
 
 #[derive(Debug, Clone, ValueEnum)]
@@ -34,7 +34,7 @@ pub enum Language {
     Js,
     Python,
     Rust,
-    Scala
+    Scala,
 }
 
 /// Find definitions, imports, or general uses of symbols in code and output their
@@ -75,7 +75,7 @@ pub(super) struct Args {
 
     /// Symbol to search for
     #[arg()]
-    pub term: String
+    pub term: String,
 }
 
 impl Args {

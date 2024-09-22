@@ -10,7 +10,7 @@ fn filename_hit(filename: &str) -> Hit {
         filename: filename.to_string(),
         line: None,
         col: None,
-        text: filename.to_string()
+        text: filename.to_string(),
     }
 }
 
@@ -21,7 +21,7 @@ fn term_hit(term: &str, text: &str) -> Hit {
         filename: "Example.scala".to_string(),
         line: Some(1337),
         col: Some(66),
-        text: text.to_string()
+        text: text.to_string(),
     }
 }
 
@@ -122,7 +122,10 @@ fn import_fmt_scala_first_in_group() {
 #[test]
 fn import_fmt_scala_last_in_group() {
     let formatter = HitFormatter::new(&OutputStyle::CleanImports, &Language::Auto);
-    let hit = term_hit("Potato", "import com.example.foo.bar.{Cucumber, Parsnip, Potato}");
+    let hit = term_hit(
+        "Potato",
+        "import com.example.foo.bar.{Cucumber, Parsnip, Potato}",
+    );
 
     let expected = "import com.example.foo.bar.Potato".to_string();
     let actual = formatter.write(&hit);
@@ -133,7 +136,10 @@ fn import_fmt_scala_last_in_group() {
 #[test]
 fn import_fmt_scala_mid_group() {
     let formatter = HitFormatter::new(&OutputStyle::CleanImports, &Language::Auto);
-    let hit = term_hit("Potato", "import com.example.foo.bar.{Cucumber, Parsnip, Potato, Zucchini}");
+    let hit = term_hit(
+        "Potato",
+        "import com.example.foo.bar.{Cucumber, Parsnip, Potato, Zucchini}",
+    );
 
     let expected = "import com.example.foo.bar.Potato".to_string();
     let actual = formatter.write(&hit);

@@ -19,19 +19,26 @@ type Result<T> = std::result::Result<T, FormatError>;
 
 pub struct HitFormatter {
     style: OutputStyle,
-    lang: Language
+    lang: Language,
 }
 
 impl HitFormatter {
     pub fn new(style: &OutputStyle, lang: &Language) -> HitFormatter {
-        HitFormatter { style: style.clone(), lang: lang.clone() }
+        HitFormatter {
+            style: style.clone(),
+            lang: lang.clone(),
+        }
     }
 
     pub fn get_coords(h: &Hit) -> Result<[String; 3]> {
         Ok([
             h.filename.to_string(),
-            h.line.ok_or(FormatError::MissingProperty("line number".to_string()))?.to_string(),
-            h.col.ok_or(FormatError::MissingProperty("col number".to_string()))?.to_string()
+            h.line
+                .ok_or(FormatError::MissingProperty("line number".to_string()))?
+                .to_string(),
+            h.col
+                .ok_or(FormatError::MissingProperty("col number".to_string()))?
+                .to_string(),
         ])
     }
 
@@ -50,18 +57,20 @@ impl HitFormatter {
 
     pub fn write(&self, h: &Hit) -> Result<String> {
         let res = match self.style {
-            OutputStyle::Auto =>
-                if h.line.is_none() { h.text.to_string() } else { Self::get_coords(h)?.join(":") },
-            OutputStyle::CleanImports =>
-                self.generate_import(h),
-            OutputStyle::Coords =>
-                Self::get_coords(h)?.join(":"),
-            OutputStyle::Quickfix =>
-                Self::get_coords(h)?
+            OutputStyle::Auto => {
+                if h.line.is_none() {
+                    h.text.to_string()
+                } else {
+                    Self::get_coords(h)?.join(":")
+                }
+            }
+            OutputStyle::CleanImports => self.generate_import(h),
+            OutputStyle::Coords => Self::get_coords(h)?.join(":"),
+            OutputStyle::Quickfix => Self::get_coords(h)?
                 .into_iter()
                 .chain(iter::once(h.text.to_string()))
                 .collect::<Vec<_>>()
-                .join(":")
+                .join(":"),
         };
 
         Ok(res)
