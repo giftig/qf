@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 use std::iter;
 
 use regex::Regex;
@@ -6,7 +9,7 @@ use thiserror::Error;
 use crate::args::{Language, OutputStyle};
 use crate::search::Hit;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum FormatError {
     #[error("Missing required properties: {0}")]
     MissingProperty(String),
@@ -40,7 +43,9 @@ impl HitFormatter {
         // in the Hit as that's a better source of the info.
         // This impl was taken from the python version and should (mostly) work for Scala imports
         let r = Regex::new(r#"^\s*import ([^\s]+)\..*$"#).unwrap();
-        r.replace(&h.text, "\\1").into_owned()
+        let prefix = r.replace(&h.text, "$1").into_owned();
+
+        format!("import {}.{}", &prefix, &h.term)
     }
 
     pub fn write(&self, h: &Hit) -> Result<String> {

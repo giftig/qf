@@ -19,15 +19,16 @@ type Result<T> = std::result::Result<T, SearchError>;
 
 #[derive(Clone, Debug)]
 pub struct Hit {
+    pub term: String,
     pub filename: String,
     pub line: Option<u64>,
     pub col: Option<u64>,
-    pub text: String,
+    pub text: String
 }
 
 impl Hit {
     /// During a regular search we get filename, line, col, and then the hit text
-    fn parse(line: &str) -> Result<Hit> {
+    fn parse(line: &str, term: &str) -> Result<Hit> {
         let pieces: Vec<&str> = line.split(":").collect();
 
         if pieces.len() < 4 {
@@ -36,6 +37,7 @@ impl Hit {
 
         return Ok(
             Hit {
+                term: term.to_string(),
                 filename: pieces[0].to_string(),
                 line: Some(pieces[1].parse::<u64>()?),
                 col: Some(pieces[2].parse::<u64>()?),
@@ -45,8 +47,8 @@ impl Hit {
     }
 
     /// When filenames are searched, all we get is the filename
-    fn parse_filename(line: &str) -> Result<Hit> {
-        Ok(Hit { filename: line.to_string(), line: None, col: None, text: line.to_string() })
+    fn parse_filename(line: &str, term: &str) -> Result<Hit> {
+        Ok(Hit { term: term.to_string(), filename: line.to_string(), line: None, col: None, text: line.to_string() })
     }
 }
 
@@ -87,11 +89,11 @@ impl Search {
                 .filter(|line| !line.trim().is_empty())
                 .map(|line| {
                     if self.mode == SearchMode::File {
-                        return Hit::parse_filename(line).unwrap();
+                        return Hit::parse_filename(line, term).unwrap();
                     }
 
                     // FIXME
-                    Hit::parse(line).unwrap()
+                    Hit::parse(line, term).unwrap()
                 })
                 .collect()
         )
