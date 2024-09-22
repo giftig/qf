@@ -1,3 +1,6 @@
+#[cfg(test)]
+mod tests;
+
 use std::num::ParseIntError;
 
 use thiserror::Error;
@@ -17,7 +20,7 @@ pub enum SearchError {
 
 type Result<T> = std::result::Result<T, SearchError>;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Hit {
     pub term: String,
     pub filename: String,
@@ -73,7 +76,7 @@ impl Search {
         let fmt = match self.mode {
             SearchMode::AllUsage | SearchMode::File => "{}",
             SearchMode::Class => {
-                r#"(?:class|trait|object|type|struct|impl|enum) {}\s*(?:[\[\(\{{: ]|$)"#
+                r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
             }
             SearchMode::Function => r#"(?:def|fn|function) {}[\[\(: ]"#,
             SearchMode::Import => r#"(?:import|use) .*[\.\{{,: ]{}(?:[\{{\}},; ]|$)"#,

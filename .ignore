@@ -1,0 +1,3 @@
+# Make sure tests ignore the code snippets in their own files
+# Note this may interfere with your own searching if you use ag to search the codebase, sorry :(
+/src/**/tests.rs
