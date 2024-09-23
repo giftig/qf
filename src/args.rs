@@ -1,7 +1,10 @@
+#[cfg(test)]
+mod tests;
+
 use clap::{Parser, ValueEnum};
 use thiserror::Error;
 
-#[derive(Error, Debug)]
+#[derive(Error, Debug, PartialEq)]
 pub enum ArgError {
     #[error("Cannot use output style = import-errors without search mode = import")]
     IllegalCleanImports,
