@@ -21,12 +21,37 @@ pub enum SearchError {
 type Result<T> = std::result::Result<T, SearchError>;
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum DetectedLanguage {
+    Js,
+    Python,
+    Rust,
+    Scala,
+    Unknown,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Hit {
     pub term: String,
     pub filename: String,
     pub line: Option<u64>,
     pub col: Option<u64>,
     pub text: String,
+    pub lang: DetectedLanguage
+}
+
+fn detect_language(filename: &str) -> DetectedLanguage {
+    match filename.split(".").last().map(|s| s.to_lowercase()) {
+        Some(ext) =>
+            match ext.as_str() {
+                "js" => DetectedLanguage::Js,
+                "py" => DetectedLanguage::Python,
+                "rs" => DetectedLanguage::Rust,
+                "sbt" | "sc" | "scala" => DetectedLanguage::Scala,
+                _ => DetectedLanguage::Unknown,
+            }
+        _ => DetectedLanguage::Unknown
+    }
+
 }
 
 impl Hit {
@@ -38,12 +63,15 @@ impl Hit {
             return Err(SearchError::HitFragmentCount);
         }
 
+        let filename = pieces[0].to_string();
+
         return Ok(Hit {
             term: term.to_string(),
-            filename: pieces[0].to_string(),
+            filename: filename.clone(),
             line: Some(pieces[1].parse::<u64>()?),
             col: Some(pieces[2].parse::<u64>()?),
             text: pieces[3..].join(":"),
+            lang: detect_language(&filename),
         });
     }
 
@@ -55,6 +83,7 @@ impl Hit {
             line: None,
             col: None,
             text: line.to_string(),
+            lang: detect_language(line),
         })
     }
 }

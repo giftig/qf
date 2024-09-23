@@ -1,7 +1,7 @@
 use super::*;
 
 use crate::args::{Language, OutputStyle};
-use crate::search::Hit;
+use crate::search::{DetectedLanguage, Hit};
 
 /// A typical hit for a filename search, no coordinates
 fn filename_hit(filename: &str) -> Hit {
@@ -11,6 +11,7 @@ fn filename_hit(filename: &str) -> Hit {
         line: None,
         col: None,
         text: filename.to_string(),
+        lang: DetectedLanguage::Scala,
     }
 }
 
@@ -22,6 +23,7 @@ fn term_hit(term: &str, text: &str) -> Hit {
         line: Some(1337),
         col: Some(66),
         text: text.to_string(),
+        lang: DetectedLanguage::Scala,
     }
 }
 

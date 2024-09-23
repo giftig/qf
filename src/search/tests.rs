@@ -21,6 +21,7 @@ fn search_scala_trait() {
         line: Some(3),
         col: Some(1),
         text: "trait Update".to_string(),
+        lang: DetectedLanguage::Scala,
     }];
 
     let actual = search.search("Update").unwrap();
@@ -39,6 +40,7 @@ fn search_scala_trait_with_companion() {
             line: Some(5),
             col: Some(8),
             text: "sealed trait InventoryUpdate extends Update {".to_string(),
+            lang: DetectedLanguage::Scala,
         },
         Hit {
             term: "InventoryUpdate".to_string(),
@@ -46,6 +48,7 @@ fn search_scala_trait_with_companion() {
             line: Some(11),
             col: Some(1),
             text: "object InventoryUpdate {".to_string(),
+            lang: DetectedLanguage::Scala,
         },
     ];
 
@@ -64,6 +67,7 @@ fn search_scala_import_single() {
         line: Some(5),
         col: Some(1),
         text: "import com.xantoria.mmo.common.model.updates.InventoryUpdate".to_string(),
+        lang: DetectedLanguage::Scala,
     }];
 
     let actual = search.search("InventoryUpdate").unwrap();
@@ -81,6 +85,7 @@ fn search_scala_import_multi() {
         line: Some(4),
         col: Some(1),
         text: "import scala.concurrent.{ExecutionContext, Future}".to_string(),
+        lang: DetectedLanguage::Scala,
     }];
 
     let actual = search.search("Future").unwrap();
@@ -98,6 +103,7 @@ fn search_scala_def() {
         line: Some(25),
         col: Some(14),
         text: "    override def toString: String = {".to_string(),
+        lang: DetectedLanguage::Scala,
     }];
 
     let actual = search.search("toString").unwrap();
@@ -116,6 +122,7 @@ fn search_partial_filename() {
             line: None,
             col: None,
             text: filename("updates/inventory/InventoryUpdateResult.scala"),
+            lang: DetectedLanguage::Scala,
         },
         Hit {
             term: "InventoryUpdate".to_string(),
@@ -123,6 +130,7 @@ fn search_partial_filename() {
             line: None,
             col: None,
             text: filename("model/updates/InventoryUpdate.scala"),
+            lang: DetectedLanguage::Scala,
         },
     ];
 
