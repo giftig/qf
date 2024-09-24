@@ -1,18 +1,21 @@
+mod imports;
 #[cfg(test)]
 mod tests;
 
 use std::iter;
 
-use regex::Regex;
 use thiserror::Error;
 
 use crate::args::{Language, OutputStyle};
 use crate::search::Hit;
+use crate::fmt::imports::generate_import;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum FormatError {
     #[error("Missing required properties: {0}")]
     MissingProperty(String),
+    #[error("Unsupported language")]
+    UnsupportedLanguage,
 }
 
 type Result<T> = std::result::Result<T, FormatError>;
@@ -42,19 +45,6 @@ impl HitFormatter {
         ])
     }
 
-    /// Generate an import which is valid in the target language, based on found imports
-    /// This will deal with removing multi-import structures where they're found
-    fn generate_import(&self, h: &Hit) -> String {
-        // FIXME: May need a separate struct for this, as we'll need to handle different input
-        // and output formats for each language. Probably also need to store source language
-        // in the Hit as that's a better source of the info.
-        // This impl was taken from the python version and should (mostly) work for Scala imports
-        let r = Regex::new(r#"^\s*import ([^\s]+)\..*$"#).unwrap();
-        let prefix = r.replace(&h.text, "$1").into_owned();
-
-        format!("import {}.{}", &prefix, &h.term)
-    }
-
     pub fn write(&self, h: &Hit) -> Result<String> {
         let res = match self.style {
             OutputStyle::Auto => {
@@ -64,7 +54,7 @@ impl HitFormatter {
                     Self::get_coords(h)?.join(":")
                 }
             }
-            OutputStyle::CleanImports => self.generate_import(h),
+            OutputStyle::CleanImports => generate_import(h)?,
             OutputStyle::Coords => Self::get_coords(h)?.join(":"),
             OutputStyle::Quickfix => Self::get_coords(h)?
                 .into_iter()
