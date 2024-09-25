@@ -16,7 +16,21 @@ fn basic_hit(term: &str, text: &str, lang: &DetectedLanguage) -> Hit {
 }
 
 #[test]
-fn generate_import_scala_first_in_group() {
+fn gen_scala_single() {
+    let hit = basic_hit(
+        "Potato",
+        "import com.example.foo.bar.Potato",
+        &DetectedLanguage::Scala,
+    );
+
+    let expected = "import com.example.foo.bar.Potato".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_scala_first_in_group() {
     let hit = basic_hit(
         "Potato",
         "import com.example.foo.bar.{Potato, Zucchini}",
@@ -30,7 +44,7 @@ fn generate_import_scala_first_in_group() {
 }
 
 #[test]
-fn import_fmt_scala_last_in_group() {
+fn gen_scala_last_in_group() {
     let hit = basic_hit(
         "Potato",
         "import com.example.foo.bar.{Cucumber, Parsnip, Potato}",
@@ -44,7 +58,7 @@ fn import_fmt_scala_last_in_group() {
 }
 
 #[test]
-fn import_fmt_scala_mid_group() {
+fn gen_scala_mid_group() {
     let hit = basic_hit(
         "Potato",
         "import com.example.foo.bar.{Cucumber, Parsnip, Potato, Zucchini}",
@@ -52,6 +66,70 @@ fn import_fmt_scala_mid_group() {
     );
 
     let expected = "import com.example.foo.bar.Potato".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_simple_single() {
+    let hit = basic_hit("my_sneks", "import my_sneks", &DetectedLanguage::Python);
+
+    let expected = "import my_sneks".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_simple_single_dotted() {
+    let hit = basic_hit("my_sneks", "import stuff.my_sneks", &DetectedLanguage::Python);
+
+    let expected = "import stuff.my_sneks".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_simple_first_in_group() {
+    let hit = basic_hit("sneks", "import sneks, zebras", &DetectedLanguage::Python);
+
+    let expected = "import sneks".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_simple_last_in_group() {
+    let hit = basic_hit("sneks", "import mice, sneks", &DetectedLanguage::Python);
+
+    let expected = "import sneks".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_from_clause_single() {
+    let hit = basic_hit("sneks", "from zoo import sneks", &DetectedLanguage::Python);
+
+    let expected = "from zoo import sneks".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_python_from_clause_mid_group() {
+    let hit = basic_hit(
+        "sneks",
+        "from zoo.cages import aardvarks, sneks, zebras",
+        &DetectedLanguage::Python
+    );
+
+    let expected = "from zoo.cages import sneks".to_string();
     let actual = generate_import(&hit);
 
     assert_eq!(actual, Ok(expected));
