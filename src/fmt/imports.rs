@@ -1,3 +1,6 @@
+#[cfg(test)]
+pub mod tests;
+
 use super::{FormatError, Result};
 
 use regex::Regex;
