@@ -1,6 +1,6 @@
 use super::*;
 
-use crate::args::{Language, OutputStyle};
+use crate::args::OutputStyle;
 use crate::search::{DetectedLanguage, Hit};
 
 /// A typical hit for a filename search, no coordinates
@@ -30,7 +30,7 @@ fn term_hit(term: &str, text: &str) -> Hit {
 #[test]
 /// Use coordinates format if no specific format specified
 fn auto_coord_fmt() {
-    let formatter = HitFormatter::new(&OutputStyle::Auto, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Auto);
     let hit = term_hit("Example", "class Example");
 
     let expected = "Example.scala:1337:66".to_string();
@@ -42,7 +42,7 @@ fn auto_coord_fmt() {
 #[test]
 /// Show text only with auto format if no line/col info (filename search only)
 fn auto_coord_filename_fmt() {
-    let formatter = HitFormatter::new(&OutputStyle::Auto, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Auto);
     let hit = filename_hit("Example.scala");
 
     let expected = "Example.scala".to_string();
@@ -54,7 +54,7 @@ fn auto_coord_filename_fmt() {
 #[test]
 /// Show coord format if specified
 fn coord_fmt() {
-    let formatter = HitFormatter::new(&OutputStyle::Coords, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Coords);
     let hit = term_hit("Example", "class Example");
 
     let expected = "Example.scala:1337:66".to_string();
@@ -66,7 +66,7 @@ fn coord_fmt() {
 #[test]
 /// Error if coord format specified but coords not found
 fn coord_fmt_no_coords() {
-    let formatter = HitFormatter::new(&OutputStyle::Coords, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Coords);
     let hit = filename_hit("Example.scala");
 
     let expected = FormatError::MissingProperty("line number".to_string());
@@ -78,7 +78,7 @@ fn coord_fmt_no_coords() {
 #[test]
 /// Show quickfix format if specified
 fn quickfix_fmt() {
-    let formatter = HitFormatter::new(&OutputStyle::Quickfix, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Quickfix);
     let hit = term_hit("Example", "class Example");
 
     let expected = "Example.scala:1337:66:class Example".to_string();
@@ -90,7 +90,7 @@ fn quickfix_fmt() {
 #[test]
 /// Error if quickfix format specified but coords not found
 fn quickfix_fmt_no_coords() {
-    let formatter = HitFormatter::new(&OutputStyle::Quickfix, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::Quickfix);
     let hit = filename_hit("Example.scala");
 
     let expected = FormatError::MissingProperty("line number".to_string());
@@ -101,7 +101,7 @@ fn quickfix_fmt_no_coords() {
 
 #[test]
 fn import_fmt_scala_single() {
-    let formatter = HitFormatter::new(&OutputStyle::CleanImports, &Language::Auto);
+    let formatter = HitFormatter::new(&OutputStyle::CleanImports);
     let hit = term_hit("Potato", "import com.example.foo.bar.Potato");
 
     let expected = "import com.example.foo.bar.Potato".to_string();

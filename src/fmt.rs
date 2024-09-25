@@ -6,7 +6,7 @@ use std::iter;
 
 use thiserror::Error;
 
-use crate::args::{Language, OutputStyle};
+use crate::args::OutputStyle;
 use crate::search::Hit;
 use crate::fmt::imports::generate_import;
 
@@ -22,15 +22,11 @@ type Result<T> = std::result::Result<T, FormatError>;
 
 pub struct HitFormatter {
     style: OutputStyle,
-    lang: Language,
 }
 
 impl HitFormatter {
-    pub fn new(style: &OutputStyle, lang: &Language) -> HitFormatter {
-        HitFormatter {
-            style: style.clone(),
-            lang: lang.clone(),
-        }
+    pub fn new(style: &OutputStyle) -> HitFormatter {
+        HitFormatter { style: style.clone() }
     }
 
     pub fn get_coords(h: &Hit) -> Result<[String; 3]> {

@@ -21,7 +21,7 @@ fn main() {
 
     let search = Search::new(&args.mode);
     let hits = search.search(&args.term).unwrap();
-    let formatter = HitFormatter::new(&args.output_style, &args.lang);
+    let formatter = HitFormatter::new(&args.output_style);
 
     for h in hits {
         println!("{}", formatter.write(&h).unwrap());
