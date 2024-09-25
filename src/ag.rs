@@ -14,9 +14,13 @@ pub enum AgError {
 
 pub type Result<T> = std::result::Result<T, AgError>;
 
-pub fn ag(term: &str, filenames: bool) -> Result<String> {
+pub fn ag<S: AsRef<str>>(term: &str, filenames: bool, extra_args: &[S]) -> Result<String> {
     let mut c = Command::new("ag");
     c.arg("-s").arg("--column");
+
+    for arg in extra_args {
+        c.arg(arg.as_ref());
+    }
 
     if filenames {
         c.arg("-g");

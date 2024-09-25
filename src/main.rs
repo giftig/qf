@@ -19,7 +19,7 @@ fn main() {
         process::exit(1);
     }
 
-    let search = Search::new(&args.mode);
+    let search = Search::new(&args.mode, &args.lang);
     let hits = search.search(&args.term).unwrap();
     let formatter = HitFormatter::new(&args.output_style);
 

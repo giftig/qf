@@ -19,7 +19,7 @@ fn py_file(s: &str) -> String {
 /// Find definition of the Update trait. N.B. should specifically ignore substring matches like
 /// InventoryUpdate and StatSheetUpdate present in the sample code
 fn search_scala_trait() {
-    let search = Search::new(&SearchMode::Class);
+    let search = Search::new(&SearchMode::Class, &Language::Scala);
     let expected = vec![Hit {
         term: "Update".to_string(),
         filename: scala_file("model/updates/Update.scala"),
@@ -37,7 +37,7 @@ fn search_scala_trait() {
 #[test]
 /// Find definitions of the InventoryUpdate trait + companion object
 fn search_scala_trait_with_companion() {
-    let search = Search::new(&SearchMode::Class);
+    let search = Search::new(&SearchMode::Class, &Language::Scala);
     let expected = vec![
         Hit {
             term: "InventoryUpdate".to_string(),
@@ -65,7 +65,7 @@ fn search_scala_trait_with_companion() {
 #[test]
 /// Find a simple, single import
 fn search_scala_import_single() {
-    let search = Search::new(&SearchMode::Import);
+    let search = Search::new(&SearchMode::Import, &Language::Scala);
     let expected = vec![Hit {
         term: "InventoryUpdate".to_string(),
         filename: scala_file("updates/inventory/InventoryUpdateResult.scala"),
@@ -83,7 +83,7 @@ fn search_scala_import_single() {
 #[test]
 /// Make sure imports can be found in a multi-import
 fn search_scala_import_multi() {
-    let search = Search::new(&SearchMode::Import);
+    let search = Search::new(&SearchMode::Import, &Language::Scala);
     let expected = vec![Hit {
         term: "Future".to_string(),
         filename: scala_file("model/updates/StatSheetUpdate.scala"),
@@ -101,7 +101,7 @@ fn search_scala_import_multi() {
 #[test]
 /// Find definition of the toString def, which is overridden on one of the classes
 fn search_scala_def() {
-    let search = Search::new(&SearchMode::Function);
+    let search = Search::new(&SearchMode::Function, &Language::Scala);
     let expected = vec![Hit {
         term: "toString".to_string(),
         filename: scala_file("model/updates/StatSheetUpdate.scala"),
@@ -119,7 +119,7 @@ fn search_scala_def() {
 #[test]
 /// Find a python class which extends Exception
 fn search_python_class_extending_parent() {
-    let search = Search::new(&SearchMode::Class);
+    let search = Search::new(&SearchMode::Class, &Language::Python);
     let expected = vec![Hit {
         term: "TokeniserException".to_string(),
         filename: py_file("tokeniser.py"),
@@ -138,7 +138,7 @@ fn search_python_class_extending_parent() {
 /// Find new-style python class which doesn't extend anything
 /// N.B. also ensures it rules out classes with a substring of the term
 fn search_python_class_plain() {
-    let search = Search::new(&SearchMode::Class);
+    let search = Search::new(&SearchMode::Class, &Language::Python);
     let expected = vec![Hit {
         term: "Cli".to_string(),
         filename: py_file("cli.py"),
@@ -155,7 +155,7 @@ fn search_python_class_plain() {
 
 #[test]
 fn search_python_def() {
-    let search = Search::new(&SearchMode::Function);
+    let search = Search::new(&SearchMode::Function, &Language::Python);
     let expected = vec![Hit {
         term: "add_bookmark".to_string(),
         filename: py_file("cli.py"),
@@ -173,7 +173,7 @@ fn search_python_def() {
 #[test]
 /// Find a simple, single python import
 fn search_python_import_single() {
-    let search = Search::new(&SearchMode::Import);
+    let search = Search::new(&SearchMode::Import, &Language::Python);
     let expected = vec![
         Hit {
             term: "readline".to_string(),
@@ -201,7 +201,7 @@ fn search_python_import_single() {
 #[test]
 /// Find a python import within a multi-import
 fn search_python_import_multi() {
-    let search = Search::new(&SearchMode::Import);
+    let search = Search::new(&SearchMode::Import, &Language::Python);
     let expected = vec![Hit {
         term: "tokeniser".to_string(),
         filename: py_file("cli.py"),
@@ -219,7 +219,7 @@ fn search_python_import_multi() {
 #[test]
 /// Make sure imports are found even if they've been renamed while importing
 fn search_python_import_renamed() {
-    let search = Search::new(&SearchMode::Import);
+    let search = Search::new(&SearchMode::Import, &Language::Python);
     let expected = vec![Hit {
         term: "ArgumentParser".to_string(),
         filename: py_file("cli.py"),
@@ -235,9 +235,18 @@ fn search_python_import_renamed() {
 }
 
 #[test]
+/// Make sure the wrong language isn't searched when lang is provided
+fn search_correct_lang_only() {
+    let search = Search::new(&SearchMode::Function, &Language::Scala);
+    let res = search.search("add_bookmark").unwrap();
+
+    assert_eq!(res, vec![]);
+}
+
+#[test]
 /// Find filenames which are a partial match for the search term
 fn search_partial_filename() {
-    let search = Search::new(&SearchMode::File);
+    let search = Search::new(&SearchMode::File, &Language::Auto);
     let expected = vec![
         Hit {
             term: "InventoryUpdate".to_string(),

@@ -6,7 +6,7 @@ use std::num::ParseIntError;
 use thiserror::Error;
 
 use crate::ag::{ag, AgError};
-use crate::args::SearchMode;
+use crate::args::{Language, SearchMode};
 
 #[derive(Error, Debug)]
 pub enum SearchError {
@@ -90,15 +90,16 @@ impl Hit {
 
 pub struct Search {
     mode: SearchMode,
+    lang: Language,
 }
 
 impl Search {
-    pub fn new(mode: &SearchMode) -> Search {
-        Search { mode: mode.clone() }
+    pub fn new(mode: &SearchMode, lang: &Language) -> Search {
+        Search { mode: mode.clone(), lang: lang.clone() }
     }
 
     /// Wrap the term in an appropriate regex depending on the search mode
-    pub fn get_pattern(&self, term: &str) -> String {
+    fn get_pattern(&self, term: &str) -> String {
         // Regex raw quote
         let raw = format!("\\Q{}\\E", term);
 
@@ -114,9 +115,20 @@ impl Search {
         return fmt.replace("{}", &raw);
     }
 
+    /// Get extra args to provide to ag -- primarily language, currently
+    fn get_ag_args(&self) -> Vec<String> {
+        match self.lang {
+            Language::Auto => vec![],
+            Language::Js => vec!["--js".to_string()],
+            Language::Python => vec!["--python".to_string()],
+            Language::Rust => vec!["--rust".to_string()],
+            Language::Scala => vec!["--scala".to_string()],
+        }
+    }
+
     /// Perform a search for a given term, based on the search config
     pub fn search(&self, term: &str) -> Result<Vec<Hit>> {
-        Ok(ag(&self.get_pattern(&term), self.mode == SearchMode::File)?
+        Ok(ag(&self.get_pattern(&term), self.mode == SearchMode::File, &self.get_ag_args())?
             .split("\n")
             .into_iter()
             .filter(|line| !line.trim().is_empty())
