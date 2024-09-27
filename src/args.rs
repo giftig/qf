@@ -6,8 +6,8 @@ use thiserror::Error;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum ArgError {
-    #[error("Cannot use output style = import-errors without search mode = import")]
-    IllegalCleanImports,
+    #[error("Cannot use output style = import without search mode = import")]
+    IllegalStyleImport,
     #[error("With search mode = file, output style must be auto")]
     IllegalFileOutputMode,
 }
@@ -27,7 +27,7 @@ pub enum SearchMode {
 pub enum OutputStyle {
     Auto,
     Coords,
-    CleanImports,
+    Import,
     Quickfix,
 }
 
@@ -84,8 +84,8 @@ pub(super) struct Args {
 impl Args {
     /// Check for illegal argument combinations and report any errors so we can panic early
     pub fn validate(&self) -> Result<()> {
-        if self.output_style == OutputStyle::CleanImports && self.mode != SearchMode::Import {
-            return Err(ArgError::IllegalCleanImports);
+        if self.output_style == OutputStyle::Import && self.mode != SearchMode::Import {
+            return Err(ArgError::IllegalStyleImport);
         }
 
         if self.mode == SearchMode::File && self.output_style != OutputStyle::Auto {

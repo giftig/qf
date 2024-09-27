@@ -50,7 +50,7 @@ impl HitFormatter {
                     Self::get_coords(h)?.join(":")
                 }
             }
-            OutputStyle::CleanImports => generate_import(h)?,
+            OutputStyle::Import => generate_import(h)?,
             OutputStyle::Coords => Self::get_coords(h)?.join(":"),
             OutputStyle::Quickfix => Self::get_coords(h)?
                 .into_iter()

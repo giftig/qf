@@ -101,7 +101,7 @@ fn quickfix_fmt_no_coords() {
 
 #[test]
 fn import_fmt_scala_single() {
-    let formatter = HitFormatter::new(&OutputStyle::CleanImports);
+    let formatter = HitFormatter::new(&OutputStyle::Import);
     let hit = term_hit("Potato", "import com.example.foo.bar.Potato");
 
     let expected = "import com.example.foo.bar.Potato".to_string();

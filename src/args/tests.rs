@@ -22,12 +22,12 @@ fn validate_success_simple_args() {
 #[test]
 fn validate_fail_illegal_clean_imports() {
     let args = Args {
-        output_style: OutputStyle::CleanImports,
+        output_style: OutputStyle::Import,
         ..default_args()
     };
 
     let res = args.validate().err().unwrap();
-    assert_eq!(res, ArgError::IllegalCleanImports);
+    assert_eq!(res, ArgError::IllegalStyleImport);
 }
 
 #[test]

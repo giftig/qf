@@ -1,3 +1,5 @@
+.PHONY: test
+
 default: clean build/release
 
 test:
