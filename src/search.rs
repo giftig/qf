@@ -109,7 +109,7 @@ impl Search {
                 r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
             }
             SearchMode::Function => r#"(?:def|fn|function) {}[\[\(: ]"#,
-            SearchMode::Import => r#"(?:import|use).*[\.\{{, ]{}(?:[\{{\}},; ]|$)"#,
+            SearchMode::Import => r#"(?:import|use).*[\.\{{,: ]{}(?:[\{{\}},; ]|$)"#,
         };
 
         return fmt.replace("{}", &raw);
