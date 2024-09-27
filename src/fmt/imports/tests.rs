@@ -136,6 +136,36 @@ fn gen_python_from_clause_mid_group() {
 }
 
 #[test]
+fn gen_rust_single() {
+    let hit = basic_hit("Potato", "use crate::produce::Potato;", &DetectedLanguage::Rust);
+
+    let expected = "use crate::produce::Potato;".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_rust_no_prefix() {
+    let hit = basic_hit("stuffs", "use stuffs;", &DetectedLanguage::Rust);
+
+    let expected = "use stuffs;".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_rust_mid_group() {
+    let hit = basic_hit("Potato", "use stuff::{Car, Potato, Sieve};", &DetectedLanguage::Rust);
+
+    let expected = "use stuff::Potato;".to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
 /// Fail to generate an import if the language is unsupported
 fn import_unsupported_language() {
     let hit = basic_hit("Potato", "#include<Potato.h>", &DetectedLanguage::Unknown);

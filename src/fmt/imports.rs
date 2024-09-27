@@ -23,10 +23,18 @@ fn gen_scala(term: &str, text: &str) -> String {
     format!("import {}.{}", &prefix, term)
 }
 
+fn gen_rust(term: &str, text: &str) -> String {
+    let r = Regex::new(r#"^\s*use\s+([\w:]+::)?[^:]+;$"#).unwrap();
+    let prefix = r.replace(text, "$1").into_owned();
+
+    format!("use {}{};", &prefix, term)
+}
+
 pub(super) fn generate_import(h: &Hit) -> Result<String> {
     match h.lang {
-        DetectedLanguage::Scala => Ok(gen_scala(&h.term, &h.text)),
         DetectedLanguage::Python => Ok(gen_py(&h.term, &h.text)),
+        DetectedLanguage::Rust => Ok(gen_rust(&h.term, &h.text)),
+        DetectedLanguage::Scala => Ok(gen_scala(&h.term, &h.text)),
         _ => Err(FormatError::UnsupportedLanguage),
     }
 }
