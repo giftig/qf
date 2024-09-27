@@ -26,4 +26,4 @@ Install from source using `make && make install`.
 
 ## Runtime requirements
 
-- [ag](https://github.com/ggreer/the_silver_searcher)
+- [ag](https://github.com/ggreer/the_silver_searcher) `>= 2.2.0`
