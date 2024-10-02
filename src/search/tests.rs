@@ -15,6 +15,11 @@ fn py_file(s: &str) -> String {
     format!("test/fixtures/python/{}", s)
 }
 
+/// Prepend the prefix to the rust sample files for brevity
+fn rust_file(s: &str) -> String {
+    format!("test/fixtures/rust/{}", s)
+}
+
 /// Construct a Search with an Ag configured to ignore /src to avoid self-referential searches
 fn searcher(mode: &SearchMode, lang: &Language) -> Search {
     let ag = Ag::new(vec!["--ignore".to_string(), "/src".to_string()]);
@@ -236,6 +241,121 @@ fn search_python_import_renamed() {
     }];
 
     let actual = search.search("ArgumentParser").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should trait definition and all impl blocks
+fn search_rust_trait() {
+    let search = searcher(&SearchMode::Class, &Language::Rust);
+    let expected = vec![
+        Hit {
+            term: "SteamAppDetailsHandling".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(32),
+            col: Some(5),
+            text: "pub trait SteamAppDetailsHandling {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "SteamAppDetailsHandling".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(134),
+            col: Some(1),
+            text: "impl SteamAppDetailsHandling for SteamClient {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+    ];
+
+    let actual = search.search("SteamAppDetailsHandling").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should find struct definition and all impl blocks
+fn search_rust_struct() {
+    let search = searcher(&SearchMode::Class, &Language::Rust);
+    let expected = vec![
+        Hit {
+            term: "SteamClient".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(36),
+            col: Some(5),
+            text: "pub struct SteamClient {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "SteamClient".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(40),
+            col: Some(1),
+            text: "impl SteamClient {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "SteamClient".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(93),
+            col: Some(1),
+            text: "impl SteamClient {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+    ];
+
+    let actual = search.search("SteamClient").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_rust_enum() {
+    let search = searcher(&SearchMode::Class, &Language::Rust);
+    let expected = vec![Hit {
+        term: "SteamError".to_string(),
+        filename: rust_file("steam.rs"),
+        line: Some(14),
+        col: Some(5),
+        text: "pub enum SteamError {".to_string(),
+        lang: DetectedLanguage::Rust,
+    }];
+
+    let actual = search.search("SteamError").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_rust_import_single() {
+    let search = searcher(&SearchMode::Import, &Language::Rust);
+    let expected = vec![Hit {
+        term: "HashMap".to_string(),
+        filename: rust_file("steam.rs"),
+        line: Some(3),
+        col: Some(1),
+        text: "use std::collections::HashMap;".to_string(),
+        lang: DetectedLanguage::Rust,
+    }];
+
+    let actual = search.search("HashMap").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_rust_import_multi() {
+    let search = searcher(&SearchMode::Import, &Language::Rust);
+    let expected = vec![Hit {
+        term: "GameId".to_string(),
+        filename: rust_file("steam.rs"),
+        line: Some(10),
+        col: Some(1),
+        text: "use crate::models::game::{GameDetails, GameId, SteamPlaytime};".to_string(),
+        lang: DetectedLanguage::Rust,
+    }];
+
+    let actual = search.search("GameId").unwrap();
 
     assert_eq!(actual, expected);
 }
