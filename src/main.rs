@@ -7,9 +7,10 @@ use std::process;
 
 use clap::Parser;
 
-use args::Args;
-use fmt::HitFormatter;
-use search::Search;
+use crate::ag::Ag;
+use crate::args::Args;
+use crate::fmt::HitFormatter;
+use crate::search::Search;
 
 fn main() {
     let args = Args::parse();
@@ -19,7 +20,7 @@ fn main() {
         process::exit(1);
     }
 
-    let search = Search::new(&args.mode, &args.lang);
+    let search = Search::new(Ag::default(), &args.mode, &args.lang);
     let hits = search.search(&args.term).unwrap();
     let formatter = HitFormatter::new(&args.output_style);
 

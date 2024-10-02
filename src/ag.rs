@@ -14,21 +14,38 @@ pub enum AgError {
 
 pub type Result<T> = std::result::Result<T, AgError>;
 
-pub fn ag<S: AsRef<str>>(term: &str, filenames: bool, extra_args: &[S]) -> Result<String> {
-    let mut c = Command::new("ag");
-    c.arg("-s").arg("--column");
+#[derive(Clone, Debug)]
+pub struct Ag {
+    extra_args: Vec<String>
+}
 
-    for arg in extra_args {
-        c.arg(arg.as_ref());
+impl Ag {
+    pub fn new(extra_args: Vec<String>) -> Ag {
+        Ag { extra_args: extra_args }
+    }
+    pub fn default() -> Ag {
+        Ag { extra_args: vec![] }
     }
 
-    if filenames {
-        c.arg("-g");
+    pub fn ag<S: AsRef<str>>(&self, term: &str, filenames: bool, extra_args: &[S]) -> Result<String> {
+        let mut c = Command::new("ag");
+        c.arg("-s").arg("--column");
+
+        for arg in &self.extra_args {
+            c.arg(&arg);
+        }
+        for arg in extra_args {
+            c.arg(arg.as_ref());
+        }
+
+        if filenames {
+            c.arg("-g");
+        }
+
+        c.arg(&term);
+
+        let output = c.output()?;
+
+        Ok(String::from_utf8(output.stdout)?)
     }
-
-    c.arg(&term);
-
-    let output = c.output()?;
-
-    Ok(String::from_utf8(output.stdout)?)
 }

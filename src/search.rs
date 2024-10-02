@@ -5,7 +5,7 @@ use std::num::ParseIntError;
 
 use thiserror::Error;
 
-use crate::ag::{ag, AgError};
+use crate::ag::{Ag, AgError};
 use crate::args::{Language, SearchMode};
 
 #[derive(Error, Debug)]
@@ -89,13 +89,14 @@ impl Hit {
 }
 
 pub struct Search {
+    ag: Ag,
     mode: SearchMode,
     lang: Language,
 }
 
 impl Search {
-    pub fn new(mode: &SearchMode, lang: &Language) -> Search {
-        Search { mode: mode.clone(), lang: lang.clone() }
+    pub fn new(ag: Ag, mode: &SearchMode, lang: &Language) -> Search {
+        Search { ag: ag, mode: mode.clone(), lang: lang.clone() }
     }
 
     /// Wrap the term in an appropriate regex depending on the search mode
@@ -128,7 +129,7 @@ impl Search {
 
     /// Perform a search for a given term, based on the search config
     pub fn search(&self, term: &str) -> Result<Vec<Hit>> {
-        Ok(ag(&self.get_pattern(&term), self.mode == SearchMode::File, &self.get_ag_args())?
+        Ok(self.ag.ag(&self.get_pattern(&term), self.mode == SearchMode::File, &self.get_ag_args())?
             .split("\n")
             .into_iter()
             .filter(|line| !line.trim().is_empty())
