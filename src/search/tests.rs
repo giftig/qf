@@ -327,6 +327,64 @@ fn search_rust_enum() {
 }
 
 #[test]
+fn search_rust_function() {
+    let search = searcher(&SearchMode::Function, &Language::Rust);
+    let expected = vec![
+        Hit {
+            term: "get_all_games".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(29),
+            col: Some(5),
+            text: "    fn get_all_games(&self) -> Result<Vec<SteamAppIdPair>>;".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "get_all_games".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(85),
+            col: Some(5),
+            text: "    fn get_all_games(&self) -> Result<Vec<SteamAppIdPair>> {".to_string(),
+            lang: DetectedLanguage::Rust,
+        }
+    ];
+
+    let actual = search.search("get_all_games").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_rust_function_with_generic() {
+    let search = searcher(&SearchMode::Function, &Language::Rust);
+    let sig = {
+        "async fn insert_steam_games<T: AsRef<str>>(&self, games: HashMap<u32, T>) -> Result<()>"
+    };
+
+    let expected = vec![
+        Hit {
+            term: "insert_steam_games".to_string(),
+            filename: rust_file("repo.rs"),
+            line: Some(72),
+            col: Some(11),
+            text: format!("    {};", &sig),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "insert_steam_games".to_string(),
+            filename: rust_file("repo.rs"),
+            line: Some(103),
+            col: Some(11),
+            text: format!("    {} {{", &sig),
+            lang: DetectedLanguage::Rust,
+        }
+    ];
+
+    let actual = search.search("insert_steam_games").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
 fn search_rust_import_single() {
     let search = searcher(&SearchMode::Import, &Language::Rust);
     let expected = vec![Hit {
