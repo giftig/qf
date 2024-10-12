@@ -434,18 +434,18 @@ fn search_partial_filename() {
     let expected = vec![
         Hit {
             term: "InventoryUpdate".to_string(),
-            filename: scala_file("updates/inventory/InventoryUpdateResult.scala"),
-            line: None,
-            col: None,
-            text: scala_file("updates/inventory/InventoryUpdateResult.scala"),
-            lang: DetectedLanguage::Scala,
-        },
-        Hit {
-            term: "InventoryUpdate".to_string(),
             filename: scala_file("model/updates/InventoryUpdate.scala"),
             line: None,
             col: None,
             text: scala_file("model/updates/InventoryUpdate.scala"),
+            lang: DetectedLanguage::Scala,
+        },
+        Hit {
+            term: "InventoryUpdate".to_string(),
+            filename: scala_file("updates/inventory/InventoryUpdateResult.scala"),
+            line: None,
+            col: None,
+            text: scala_file("updates/inventory/InventoryUpdateResult.scala"),
             lang: DetectedLanguage::Scala,
         },
     ];

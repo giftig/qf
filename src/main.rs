@@ -1,7 +1,8 @@
-pub mod ag;
-pub mod args;
-pub mod fmt;
-pub mod search;
+mod ag;
+mod args;
+mod fmt;
+mod search;
+mod sort;
 
 use std::process;
 

@@ -7,6 +7,7 @@ use thiserror::Error;
 
 use crate::ag::{Ag, AgError};
 use crate::args::{Language, SearchMode};
+use crate::sort::sort_hits;
 
 #[derive(Error, Debug)]
 pub enum SearchError {
@@ -20,7 +21,7 @@ pub enum SearchError {
 
 type Result<T> = std::result::Result<T, SearchError>;
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DetectedLanguage {
     Js,
     Python,
@@ -29,7 +30,7 @@ pub enum DetectedLanguage {
     Unknown,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, Eq, PartialEq)]
 pub struct Hit {
     pub term: String,
     pub filename: String,
@@ -129,18 +130,23 @@ impl Search {
 
     /// Perform a search for a given term, based on the search config
     pub fn search(&self, term: &str) -> Result<Vec<Hit>> {
-        Ok(self.ag.ag(&self.get_pattern(&term), self.mode == SearchMode::File, &self.get_ag_args())?
-            .split("\n")
-            .into_iter()
-            .filter(|line| !line.trim().is_empty())
-            .map(|line| {
-                if self.mode == SearchMode::File {
-                    return Hit::parse_filename(line, term).unwrap();
-                }
+        let mut results = {
+            self.ag.ag(&self.get_pattern(&term), self.mode == SearchMode::File, &self.get_ag_args())?
+                .split("\n")
+                .into_iter()
+                .filter(|line| !line.trim().is_empty())
+                .map(|line| {
+                    if self.mode == SearchMode::File {
+                        return Hit::parse_filename(line, term).unwrap();
+                    }
 
-                // FIXME
-                Hit::parse(line, term).unwrap()
-            })
-            .collect())
+                    // FIXME
+                    Hit::parse(line, term).unwrap()
+                })
+                .collect()
+        };
+        sort_hits(&mut results, &self.mode);
+
+        Ok(results)
     }
 }
