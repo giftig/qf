@@ -83,7 +83,11 @@ fn gen_python_simple_single() {
 
 #[test]
 fn gen_python_simple_single_dotted() {
-    let hit = basic_hit("my_sneks", "import stuff.my_sneks", &DetectedLanguage::Python);
+    let hit = basic_hit(
+        "my_sneks",
+        "import stuff.my_sneks",
+        &DetectedLanguage::Python,
+    );
 
     let expected = "import stuff.my_sneks".to_string();
     let actual = generate_import(&hit);
@@ -126,7 +130,7 @@ fn gen_python_from_clause_mid_group() {
     let hit = basic_hit(
         "sneks",
         "from zoo.cages import aardvarks, sneks, zebras",
-        &DetectedLanguage::Python
+        &DetectedLanguage::Python,
     );
 
     let expected = "from zoo.cages import sneks".to_string();
@@ -137,7 +141,11 @@ fn gen_python_from_clause_mid_group() {
 
 #[test]
 fn gen_rust_single() {
-    let hit = basic_hit("Potato", "use crate::produce::Potato;", &DetectedLanguage::Rust);
+    let hit = basic_hit(
+        "Potato",
+        "use crate::produce::Potato;",
+        &DetectedLanguage::Rust,
+    );
 
     let expected = "use crate::produce::Potato;".to_string();
     let actual = generate_import(&hit);
@@ -157,7 +165,11 @@ fn gen_rust_no_prefix() {
 
 #[test]
 fn gen_rust_mid_group() {
-    let hit = basic_hit("Potato", "use stuff::{Car, Potato, Sieve};", &DetectedLanguage::Rust);
+    let hit = basic_hit(
+        "Potato",
+        "use stuff::{Car, Potato, Sieve};",
+        &DetectedLanguage::Rust,
+    );
 
     let expected = "use stuff::Potato;".to_string();
     let actual = generate_import(&hit);

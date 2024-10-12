@@ -7,8 +7,8 @@ use std::iter;
 use thiserror::Error;
 
 use crate::args::OutputStyle;
-use crate::search::Hit;
 use crate::fmt::imports::generate_import;
+use crate::search::Hit;
 
 #[derive(Error, Debug, PartialEq)]
 pub enum FormatError {
@@ -26,7 +26,9 @@ pub struct HitFormatter {
 
 impl HitFormatter {
     pub fn new(style: &OutputStyle) -> HitFormatter {
-        HitFormatter { style: style.clone() }
+        HitFormatter {
+            style: style.clone(),
+        }
     }
 
     pub fn get_coords(h: &Hit) -> Result<[String; 3]> {

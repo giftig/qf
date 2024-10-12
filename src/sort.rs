@@ -17,10 +17,19 @@ pub fn sort_hits(hits: &mut Vec<Hit>, mode: &SearchMode) -> () {
         }
 
         let has_body = {
-            *mode == SearchMode::Function &&
-                h.text.chars().last().map(|c| vec!['{', ':', '='].contains(&c)).unwrap_or(false)
+            *mode == SearchMode::Function
+                && h.text
+                    .chars()
+                    .last()
+                    .map(|c| vec!['{', ':', '='].contains(&c))
+                    .unwrap_or(false)
         };
 
-        (leading_spaces, has_body, h.filename.clone(), h.line.clone().unwrap_or(0))
+        (
+            leading_spaces,
+            has_body,
+            h.filename.clone(),
+            h.line.clone().unwrap_or(0),
+        )
     });
 }

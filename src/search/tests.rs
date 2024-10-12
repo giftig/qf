@@ -218,7 +218,8 @@ fn search_python_import_multi() {
         filename: py_file("cli.py"),
         line: Some(11),
         col: Some(17),
-        text: "from s3_browser import bookmarks, client, completion, paths, tokeniser, utils".to_string(),
+        text: "from s3_browser import bookmarks, client, completion, paths, tokeniser, utils"
+            .to_string(),
         lang: DetectedLanguage::Python,
     }];
 
@@ -345,7 +346,7 @@ fn search_rust_function() {
             col: Some(5),
             text: "    fn get_all_games(&self) -> Result<Vec<SteamAppIdPair>> {".to_string(),
             lang: DetectedLanguage::Rust,
-        }
+        },
     ];
 
     let actual = search.search("get_all_games").unwrap();
@@ -376,7 +377,7 @@ fn search_rust_function_with_generic() {
             col: Some(11),
             text: format!("    {} {{", &sig),
             lang: DetectedLanguage::Rust,
-        }
+        },
     ];
 
     let actual = search.search("insert_steam_games").unwrap();

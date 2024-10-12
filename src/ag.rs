@@ -16,18 +16,25 @@ pub type Result<T> = std::result::Result<T, AgError>;
 
 #[derive(Clone, Debug)]
 pub struct Ag {
-    extra_args: Vec<String>
+    extra_args: Vec<String>,
 }
 
 impl Ag {
     pub fn new(extra_args: Vec<String>) -> Ag {
-        Ag { extra_args: extra_args }
+        Ag {
+            extra_args: extra_args,
+        }
     }
     pub fn default() -> Ag {
         Ag { extra_args: vec![] }
     }
 
-    pub fn ag<S: AsRef<str>>(&self, term: &str, filenames: bool, extra_args: &[S]) -> Result<String> {
+    pub fn ag<S: AsRef<str>>(
+        &self,
+        term: &str,
+        filenames: bool,
+        extra_args: &[S],
+    ) -> Result<String> {
         let mut c = Command::new("ag");
         c.arg("-s").arg("--column");
 

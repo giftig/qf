@@ -42,5 +42,4 @@ fn validate_fail_file_search_bad_output_style() {
         let res = args.validate().err().unwrap();
         assert_eq!(res, ArgError::IllegalFileOutputMode);
     }
-
 }
