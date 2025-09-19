@@ -20,6 +20,11 @@ fn rust_file(s: &str) -> String {
     format!("test/fixtures/rust/{}", s)
 }
 
+/// Prepend the prefix to the go sample files for brevity
+fn go_file(s: &str) -> String {
+    format!("test/fixtures/go/{}", s)
+}
+
 /// Construct a Search with an Ag configured to ignore /src to avoid self-referential searches
 fn searcher(mode: &SearchMode, lang: &Language) -> Search {
     let ag = Ag::new(vec!["--ignore".to_string(), "/src".to_string()]);
@@ -415,6 +420,103 @@ fn search_rust_import_multi() {
     }];
 
     let actual = search.search("GameId").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should find struct definition
+fn search_go_struct() {
+    let search = searcher(&SearchMode::Class, &Language::Go);
+    let expected = vec![
+        Hit {
+            term: "Cache".to_string(),
+            filename: go_file("cache/cache.go"),
+            line: Some(15),
+            col: Some(1),
+            text: "type Cache struct {".to_string(),
+            lang: DetectedLanguage::Go,
+        },
+    ];
+
+    let actual = search.search("Cache").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should find a func
+fn search_go_func() {
+    let search = searcher(&SearchMode::Function, &Language::Go);
+    let expected = vec![
+        Hit {
+            term: "NewCache".to_string(),
+            filename: go_file("cache/cache.go"),
+            line: Some(19),
+            col: Some(1),
+            text: "func NewCache(addr string) Cache {".to_string(),
+            lang: DetectedLanguage::Go,
+        },
+    ];
+
+    let actual = search.search("NewCache").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should find a struct method
+fn search_go_struct_method() {
+    let search = searcher(&SearchMode::Function, &Language::Go);
+    let expected = vec![
+        Hit {
+            term: "StoreLemming".to_string(),
+            filename: go_file("cache/cache.go"),
+            line: Some(30),
+            col: Some(1),
+            text: "func (c Cache) StoreLemming(lemming models.Lemming) (err error) {".to_string(),
+            lang: DetectedLanguage::Go,
+        },
+    ];
+
+    let actual = search.search("StoreLemming").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_go_import_single() {
+    let search = searcher(&SearchMode::Import, &Language::Go);
+    let expected = vec![Hit {
+        term: "fmt".to_string(),
+        filename: go_file("cache/single_import.go"),
+        line: Some(3),
+        col: Some(1),
+        text: r#"import "fmt""#.to_string(),
+        lang: DetectedLanguage::Go,
+    }];
+
+    let actual = search.search("fmt").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+// FIXME: Multi-line imports aren't working in any language but they're particularly noticeable
+// in go; will need to adjust regex line-scanning approach to make them work
+#[ignore]
+#[test]
+fn search_go_import_multi() {
+    let search = searcher(&SearchMode::Import, &Language::Go);
+    let expected = vec![Hit {
+        term: "models".to_string(),
+        filename: go_file("cache/cache.go"),
+        line: Some(10),
+        col: Some(3),
+        text: "???".to_string(),
+        lang: DetectedLanguage::Go,
+    }];
+
+    let actual = search.search("models").unwrap();
 
     assert_eq!(actual, expected);
 }

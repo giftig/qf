@@ -9,6 +9,21 @@ use crate::ag::{Ag, AgError};
 use crate::args::{Language, SearchMode};
 use crate::sort::sort_hits;
 
+// This one is fairly complex due to different language patterns for imports:
+//   - After "import" or "use" we match everything up to one of [., {:/] to try to find the last
+//     separator and extract the symbol from the import. That's because scala/python/rust can use
+//     brace / commas for multi import blocks, rust uses :: as a separator, and go uses
+//     / as a separator. The space is because some imports will be simple and just a single term.
+//   - We then match on the literal symbol which will be quoted and replaced in {}, like \Qfoo\E
+//   - Finally we match and discard a character which can end the symbol: again a space, comma or
+//     close brace for scala/python/rust, a semicolon for rust (though also possible in python
+//     or scala) and a quotation mark for go.
+//
+// N.B. if this gets any more complex then most likely it should be broken into individual regexes
+// for specific languages, especially as reqirements of one language may break those of another
+// language. In that case the language should be detected first, and then the right regex applied.
+const IMPORT_PATTERN: &str = r#"(?:import|use).*[\.\{{,:/" ]{}(?:[\{{\}},;/" ]|$)"#;
+
 #[derive(Error, Debug)]
 pub enum SearchError {
     #[error("Ag error: {0}")]
@@ -23,6 +38,7 @@ type Result<T> = std::result::Result<T, SearchError>;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 pub enum DetectedLanguage {
+    Go,
     Js,
     Python,
     Rust,
@@ -43,6 +59,7 @@ pub struct Hit {
 fn detect_language(filename: &str) -> DetectedLanguage {
     match filename.split(".").last().map(|s| s.to_lowercase()) {
         Some(ext) => match ext.as_str() {
+            "go" => DetectedLanguage::Go,
             "js" => DetectedLanguage::Js,
             "py" => DetectedLanguage::Python,
             "rs" => DetectedLanguage::Rust,
@@ -112,8 +129,9 @@ impl Search {
             SearchMode::Class => {
                 r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
             }
-            SearchMode::Function => r#"(?:def|fn|function) {}[\<\[\(: ]"#,
-            SearchMode::Import => r#"(?:import|use).*[\.\{{,: ]{}(?:[\{{\}},; ]|$)"#,
+            // N.B. the second optional block is unique to go struct methods
+            SearchMode::Function => r#"(?:def|fn|function|func) (?:\(.+\) )?{}[\<\[\(: ]"#,
+            SearchMode::Import => IMPORT_PATTERN,
         };
 
         return fmt.replace("{}", &raw);
@@ -123,6 +141,7 @@ impl Search {
     fn get_ag_args(&self) -> Vec<String> {
         match self.lang {
             Language::Auto => vec![],
+            Language::Go => vec!["--go".to_string()],
             Language::Js => vec!["--js".to_string()],
             Language::Python => vec!["--python".to_string()],
             Language::Rust => vec!["--rust".to_string()],

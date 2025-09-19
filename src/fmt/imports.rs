@@ -30,8 +30,17 @@ fn gen_rust(term: &str, text: &str) -> String {
     format!("use {}{};", &prefix, term)
 }
 
+fn gen_go(term: &str, text: &str) -> Result<String> {
+    let r = Regex::new(&r#"^.*"([^"]*{})""#.replace("{}", term)).unwrap();
+    let full_term = &r.captures(text)
+        .ok_or(FormatError::Pattern(format!("failed to find [{term}] in [{text}]")))?[1];
+
+    Ok(format!(r#"import "{}""#, full_term))
+}
+
 pub(super) fn generate_import(h: &Hit) -> Result<String> {
     match h.lang {
+        DetectedLanguage::Go => gen_go(&h.term, &h.text),
         DetectedLanguage::Python => Ok(gen_py(&h.term, &h.text)),
         DetectedLanguage::Rust => Ok(gen_rust(&h.term, &h.text)),
         DetectedLanguage::Scala => Ok(gen_scala(&h.term, &h.text)),

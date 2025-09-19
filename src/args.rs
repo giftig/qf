@@ -34,6 +34,7 @@ pub enum OutputStyle {
 #[derive(Debug, Clone, ValueEnum)]
 pub enum Language {
     Auto,
+    Go,
     Js,
     Python,
     Rust,
@@ -59,12 +60,12 @@ pub(super) struct Args {
     pub mode: SearchMode,
 
     /// Specify how the output should be presented; these options are mostly aimed at helping text
-    /// editors like vim jump to or present the locations. clean-imports will write you a new
-    /// import based on found uses.
+    /// editors like vim jump to or present the locations. import will write you a new import based
+    /// on found uses.
     #[arg(value_enum, short, long, default_value_t=OutputStyle::Auto)]
     pub output_style: OutputStyle,
 
-    /// Provide a language hint. This is especially useful with --output-style clean-imports
+    /// Provide a language hint. This is especially useful with --output-style import
     #[arg(value_enum, long, default_value_t=Language::Auto, help = "Provide a language hint")]
     pub lang: Language,
 

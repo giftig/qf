@@ -14,6 +14,8 @@ use crate::search::Hit;
 pub enum FormatError {
     #[error("Missing required properties: {0}")]
     MissingProperty(String),
+    #[error("Error while parsing ag output: {0}")]
+    Pattern(String),
     #[error("Unsupported language")]
     UnsupportedLanguage,
 }

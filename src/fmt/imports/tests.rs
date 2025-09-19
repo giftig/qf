@@ -178,6 +178,20 @@ fn gen_rust_mid_group() {
 }
 
 #[test]
+fn gen_golang() {
+    let hit = basic_hit(
+        "models",
+        r#"import "github.com/foo/bar/models""#,
+        &DetectedLanguage::Go,
+    );
+
+    let expected = r#"import "github.com/foo/bar/models""#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
 /// Fail to generate an import if the language is unsupported
 fn import_unsupported_language() {
     let hit = basic_hit("Potato", "#include<Potato.h>", &DetectedLanguage::Unknown);
