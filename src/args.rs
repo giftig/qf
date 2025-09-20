@@ -67,7 +67,9 @@ pub(super) struct Args {
     #[arg(value_enum, short, long, default_value_t=OutputStyle::Auto)]
     pub output_style: OutputStyle,
 
-    /// Provide a language hint. This is especially useful with --output-style import
+    /// Provide a language hint. This may be required for correct searching in some edge cases,
+    /// e.g. in golang it's a hint that both classes and functions can start with a capital when
+    /// using with --mode smart
     #[arg(value_enum, long, default_value_t=Language::Auto, help = "Provide a language hint")]
     pub lang: Language,
 
