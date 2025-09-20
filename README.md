@@ -14,7 +14,7 @@ been used somewhere else. However this works rapidly for the majority of cases a
 approach to using an IDE or a heavyweight tool like [Metals](https://scalameta.org/metals/).
 
 This is used in conjunction with some delegating vim functions in order to power some lookup and
-import-writing features. It supports primarily Scala, with partial support for Python and Rust.
+import-writing features. It supports a few languages I use, including Scala, Python, Rust, and Go.
 I'll be adding better multi-language support as I go.
 
 This is a Rust rewrite of the original I wrote in python a few years ago:
