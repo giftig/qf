@@ -24,6 +24,13 @@ use crate::sort::sort_hits;
 // language. In that case the language should be detected first, and then the right regex applied.
 const IMPORT_PATTERN: &str = r#"(?:import|use).*[\.\{{,:/" ]{}(?:[\{{\}},;/" ]|$)"#;
 
+const CLASS_PATTERN: &str = {
+    r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
+};
+
+// N.B. the second optional block is unique to go struct methods
+const FUNCTION_PATTERN: &str = r#"(?:def|fn|function|func) (?:\(.+\) )?{}[\<\[\(: ]"#;
+
 #[derive(Error, Debug)]
 pub enum SearchError {
     #[error("Ag error: {0}")]
@@ -119,6 +126,22 @@ impl Search {
         }
     }
 
+    /// A pattern to use to "smartfind" a symbol as either a class or function
+    /// For most languages we search with a func pattern if it starts with a lowercase and a class
+    /// pattern if it starts with uppercase -- but golang likes to be different and we can't
+    /// distinguish, so combine both in that case.
+    fn get_smart_pattern(&self, term: &str) -> String {
+        if self.lang == Language::Go {
+            return format!("(?:{CLASS_PATTERN}|{FUNCTION_PATTERN})")
+        }
+
+        if term.chars().next().map(|c| c.is_lowercase()).unwrap_or(true) {
+            return FUNCTION_PATTERN.to_owned()
+        }
+
+        return CLASS_PATTERN.to_owned()
+    }
+
     /// Wrap the term in an appropriate regex depending on the search mode
     fn get_pattern(&self, term: &str) -> String {
         // Regex raw quote
@@ -126,12 +149,10 @@ impl Search {
 
         let fmt = match self.mode {
             SearchMode::AllUsage | SearchMode::File => "{}",
-            SearchMode::Class => {
-                r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
-            }
-            // N.B. the second optional block is unique to go struct methods
-            SearchMode::Function => r#"(?:def|fn|function|func) (?:\(.+\) )?{}[\<\[\(: ]"#,
+            SearchMode::Class => CLASS_PATTERN,
+            SearchMode::Function => FUNCTION_PATTERN,
             SearchMode::Import => IMPORT_PATTERN,
+            SearchMode::Smart => &self.get_smart_pattern(term),
         };
 
         return fmt.replace("{}", &raw);

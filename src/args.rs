@@ -21,6 +21,7 @@ pub enum SearchMode {
     File,
     Function,
     Import,
+    Smart,
 }
 
 #[derive(Debug, Clone, PartialEq, ValueEnum)]
@@ -31,7 +32,7 @@ pub enum OutputStyle {
     Quickfix,
 }
 
-#[derive(Debug, Clone, ValueEnum)]
+#[derive(Debug, Clone, PartialEq, ValueEnum)]
 pub enum Language {
     Auto,
     Go,
@@ -56,6 +57,7 @@ pub(super) struct Args {
     ///   - files: just find filenames matching the term
     ///   - functions: including methods. def / fn / function etc.
     ///   - imports: find examples of the given term being imported
+    ///   - smart: find classes or functions, depending on case (and language)
     #[arg(value_enum, short, long, default_value_t=SearchMode::AllUsage, verbatim_doc_comment)]
     pub mode: SearchMode,
 

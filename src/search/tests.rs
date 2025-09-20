@@ -252,7 +252,41 @@ fn search_python_import_renamed() {
 }
 
 #[test]
-/// Should trait definition and all impl blocks
+fn search_python_smart_class() {
+    let search = searcher(&SearchMode::Smart, &Language::Python);
+    let expected = vec![Hit {
+        term: "Cli".to_string(),
+        filename: py_file("cli.py"),
+        line: Some(17),
+        col: Some(1),
+        text: "class Cli:".to_string(),
+        lang: DetectedLanguage::Python,
+    }];
+
+    let actual = search.search("Cli").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_python_smart_def() {
+    let search = searcher(&SearchMode::Smart, &Language::Python);
+    let expected = vec![Hit {
+        term: "add_bookmark".to_string(),
+        filename: py_file("cli.py"),
+        line: Some(197),
+        col: Some(5),
+        text: "    def add_bookmark(self, name, path):".to_string(),
+        lang: DetectedLanguage::Python,
+    }];
+
+    let actual = search.search("add_bookmark").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+/// Should find trait definition and all impl blocks
 fn search_rust_trait() {
     let search = searcher(&SearchMode::Class, &Language::Rust);
     let expected = vec![
@@ -425,6 +459,60 @@ fn search_rust_import_multi() {
 }
 
 #[test]
+fn search_rust_smart_trait() {
+    let search = searcher(&SearchMode::Smart, &Language::Rust);
+    let expected = vec![
+        Hit {
+            term: "SteamAppDetailsHandling".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(32),
+            col: Some(5),
+            text: "pub trait SteamAppDetailsHandling {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "SteamAppDetailsHandling".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(134),
+            col: Some(1),
+            text: "impl SteamAppDetailsHandling for SteamClient {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+    ];
+
+    let actual = search.search("SteamAppDetailsHandling").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_rust_smart_function() {
+    let search = searcher(&SearchMode::Smart, &Language::Rust);
+    let expected = vec![
+        Hit {
+            term: "get_all_games".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(29),
+            col: Some(5),
+            text: "    fn get_all_games(&self) -> Result<Vec<SteamAppIdPair>>;".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+        Hit {
+            term: "get_all_games".to_string(),
+            filename: rust_file("steam.rs"),
+            line: Some(85),
+            col: Some(5),
+            text: "    fn get_all_games(&self) -> Result<Vec<SteamAppIdPair>> {".to_string(),
+            lang: DetectedLanguage::Rust,
+        },
+    ];
+
+    let actual = search.search("get_all_games").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
 /// Should find struct definition
 fn search_go_struct() {
     let search = searcher(&SearchMode::Class, &Language::Go);
@@ -517,6 +605,44 @@ fn search_go_import_multi() {
     }];
 
     let actual = search.search("models").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_go_smart_func() {
+    let search = searcher(&SearchMode::Smart, &Language::Go);
+    let expected = vec![
+        Hit {
+            term: "NewCache".to_string(),
+            filename: go_file("cache/cache.go"),
+            line: Some(19),
+            col: Some(1),
+            text: "func NewCache(addr string) Cache {".to_string(),
+            lang: DetectedLanguage::Go,
+        },
+    ];
+
+    let actual = search.search("NewCache").unwrap();
+
+    assert_eq!(actual, expected);
+}
+
+#[test]
+fn search_go_smart_struct() {
+    let search = searcher(&SearchMode::Smart, &Language::Go);
+    let expected = vec![
+        Hit {
+            term: "Cache".to_string(),
+            filename: go_file("cache/cache.go"),
+            line: Some(15),
+            col: Some(1),
+            text: "type Cache struct {".to_string(),
+            lang: DetectedLanguage::Go,
+        },
+    ];
+
+    let actual = search.search("Cache").unwrap();
 
     assert_eq!(actual, expected);
 }
