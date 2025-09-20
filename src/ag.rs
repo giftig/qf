@@ -20,6 +20,7 @@ pub struct Ag {
 }
 
 impl Ag {
+    #[cfg(test)]
     pub fn new(extra_args: Vec<String>) -> Ag {
         Ag {
             extra_args: extra_args,
