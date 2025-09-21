@@ -1,35 +1,16 @@
 #[cfg(test)]
 mod tests;
 
+mod strategy;
+
 use std::num::ParseIntError;
 
 use thiserror::Error;
 
 use crate::ag::{Ag, AgError};
 use crate::args::{Language, SearchMode};
+use crate::search::strategy::{get_strategy, SearchStrategy};
 use crate::sort::sort_hits;
-
-// This one is fairly complex due to different language patterns for imports:
-//   - After "import" or "use" we match everything up to one of [., {:/] to try to find the last
-//     separator and extract the symbol from the import. That's because scala/python/rust can use
-//     brace / commas for multi import blocks, rust uses :: as a separator, and go uses
-//     / as a separator. The space is because some imports will be simple and just a single term.
-//   - We then match on the literal symbol which will be quoted and replaced in {}, like \Qfoo\E
-//   - Finally we match and discard a character which can end the symbol: again a space, comma or
-//     close brace for scala/python/rust, a semicolon for rust (though also possible in python
-//     or scala) and a quotation mark for go.
-//
-// N.B. if this gets any more complex then most likely it should be broken into individual regexes
-// for specific languages, especially as reqirements of one language may break those of another
-// language. In that case the language should be detected first, and then the right regex applied.
-const IMPORT_PATTERN: &str = r#"(?:import|use).*[\.\{{,:/" ]{}(?:[\{{\}},;/" ]|$)"#;
-
-const CLASS_PATTERN: &str = {
-    r#"(?:case class|class|trait|object|type|struct|impl|enum) {}\h*(?:[\[\(\{{: ]|$)"#
-};
-
-// N.B. the second optional block is unique to go struct methods
-const FUNCTION_PATTERN: &str = r#"(?:def|fn|function|func) (?:\(.+\) )?{}[\<\[\(: ]"#;
 
 #[derive(Error, Debug)]
 pub enum SearchError {
@@ -115,6 +96,7 @@ pub struct Search {
     ag: Ag,
     mode: SearchMode,
     lang: Language,
+    strategy: SearchStrategy,
 }
 
 impl Search {
@@ -123,39 +105,8 @@ impl Search {
             ag: ag,
             mode: mode.clone(),
             lang: lang.clone(),
+            strategy: get_strategy(lang),
         }
-    }
-
-    /// A pattern to use to "smartfind" a symbol as either a class or function
-    /// For most languages we search with a func pattern if it starts with a lowercase and a class
-    /// pattern if it starts with uppercase -- but golang likes to be different and we can't
-    /// distinguish, so combine both in that case.
-    fn get_smart_pattern(&self, term: &str) -> String {
-        if self.lang == Language::Go {
-            return format!("(?:{CLASS_PATTERN}|{FUNCTION_PATTERN})")
-        }
-
-        if term.chars().next().map(|c| c.is_lowercase()).unwrap_or(true) {
-            return FUNCTION_PATTERN.to_owned()
-        }
-
-        return CLASS_PATTERN.to_owned()
-    }
-
-    /// Wrap the term in an appropriate regex depending on the search mode
-    fn get_pattern(&self, term: &str) -> String {
-        // Regex raw quote
-        let raw = format!("\\Q{}\\E", term);
-
-        let fmt = match self.mode {
-            SearchMode::AllUsage | SearchMode::File => "{}",
-            SearchMode::Class => CLASS_PATTERN,
-            SearchMode::Function => FUNCTION_PATTERN,
-            SearchMode::Import => IMPORT_PATTERN,
-            SearchMode::Smart => &self.get_smart_pattern(term),
-        };
-
-        return fmt.replace("{}", &raw);
     }
 
     /// Get extra args to provide to ag -- primarily language, currently
@@ -175,7 +126,7 @@ impl Search {
         let mut results = {
             self.ag
                 .ag(
-                    &self.get_pattern(&term),
+                    &self.strategy.get_pattern(&self.mode, &term),
                     self.mode == SearchMode::File,
                     &self.get_ag_args(),
                 )?
