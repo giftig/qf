@@ -81,6 +81,14 @@ pub(super) struct Args {
     #[arg(short, long)]
     pub list: bool,
 
+    /// Override import index file to use for fallback when generating imports
+    #[arg(long)]
+    pub import_index_file: Option<String>,
+
+    /// Do not fall back to an index file when generating imports
+    #[arg(long = "no-import-index-file", action = clap::ArgAction::SetFalse, default_value_t = true)]
+    pub use_import_index_file: bool,
+
     /// Symbol to search for
     #[arg()]
     pub term: String,

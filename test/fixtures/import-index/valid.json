@@ -1,0 +1,7 @@
+{
+  "lang": "rust",
+  "entries": {
+    "PathBuf": "use std::path::PathBuf",
+    "fs": "use std::fs"
+  }
+}

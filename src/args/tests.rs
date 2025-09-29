@@ -8,6 +8,8 @@ fn default_args() -> Args {
         first_hit: false,
         list: false,
         term: "OogaBooga".to_string(),
+        import_index_file: None,
+        use_import_index_file: true,
     }
 }
 
