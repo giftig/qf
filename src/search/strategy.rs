@@ -1,4 +1,5 @@
 mod go;
+mod js;
 
 use crate::args::{Language, SearchMode};
 
@@ -103,6 +104,7 @@ impl SearchStrategy {
 pub fn get_strategy(lang: &Language) -> SearchStrategy {
     match *lang {
         Language::Go => go::get_strategy(),
+        Language::Js => js::get_strategy(),
         _ => SearchStrategy::default(),
     }
 }

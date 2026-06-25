@@ -48,7 +48,7 @@ fn detect_language(filename: &str) -> DetectedLanguage {
     match filename.split(".").last().map(|s| s.to_lowercase()) {
         Some(ext) => match ext.as_str() {
             "go" => DetectedLanguage::Go,
-            "js" => DetectedLanguage::Js,
+            "js" | "ts" | "jsx" | "tsx" => DetectedLanguage::Js,
             "py" => DetectedLanguage::Python,
             "rs" => DetectedLanguage::Rust,
             "sbt" | "sc" | "scala" => DetectedLanguage::Scala,
@@ -114,7 +114,7 @@ impl Search {
         match self.lang {
             Language::Auto => vec![],
             Language::Go => vec!["--go".to_string()],
-            Language::Js => vec!["--js".to_string()],
+            Language::Js => vec!["--js".to_string(), "--ts".to_string()],
             Language::Python => vec!["--python".to_string()],
             Language::Rust => vec!["--rust".to_string()],
             Language::Scala => vec!["--scala".to_string()],
