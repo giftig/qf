@@ -3,6 +3,7 @@ use crate::search::Hit;
 
 /// Sort hits according to a range of criteria
 ///   - fewest leading spaces, as top-level definitions are more likely to be broadly relevant
+///   - prioritise absolute imports over relative ones
 ///   - concrete method definitions first, according to the (naively-determined) presence of a body
 ///   - otherwise sort by filename and line number
 pub fn sort_hits(hits: &mut Vec<Hit>, mode: &SearchMode) -> () {
@@ -31,7 +32,7 @@ pub fn sort_hits(hits: &mut Vec<Hit>, mode: &SearchMode) -> () {
 
         (
             leading_spaces,
-            !is_relative,
+            is_relative,
             has_body,
             h.filename.clone(),
             h.line.clone().unwrap_or(0),
