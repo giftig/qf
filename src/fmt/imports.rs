@@ -41,9 +41,9 @@ fn gen_go(term: &str, text: &str) -> Result<String> {
 /// Only supports "import { A, B } from 'foo.js'" style formats; depending on flavour js may also
 /// use require, which is not currently supported.
 fn gen_js(term: &str, text: &str) -> Result<String> {
-    let r = Regex::new(r#"^import (.+) from (.+)$"#).unwrap();
+    let r = Regex::new(r#"import (.+) from (.+)$"#).unwrap();
     let captures = r.captures(text)
-        .ok_or(FormatError::Pattern(format!("failed to find [{term}] in [{text}]")))?;
+        .ok_or(FormatError::Pattern(format!("failed to parse import [{text}]")))?;
 
     // This could be either { Foo, Bar, Baz } or just Foo, or both like Foo, { Bar, Baz }
     // To determine which syntax to use in the import we need to determine where our term appears

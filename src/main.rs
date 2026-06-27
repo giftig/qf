@@ -40,7 +40,10 @@ fn main() {
     let formatter = HitFormatter::new(&args.output_style);
 
     for h in &hits {
-        println!("{}", formatter.write(h).unwrap());
+        match formatter.write(h) {
+            Ok(line) => println!("{}", line),
+            Err(e) => eprintln!("Failed to format hit {:?}: {}", &h, &e)
+        }
 
         if args.first_hit {
             break;
