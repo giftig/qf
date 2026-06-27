@@ -192,6 +192,90 @@ fn gen_golang() {
 }
 
 #[test]
+fn gen_js_default() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import Elephant from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import Elephant from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_js_non_default() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import { Dragon, Elephant, Giraffe, getColor } from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import { Elephant } from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_js_mixed_default_first() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import Elephant, { Cat, Dog } from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import Elephant from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_js_mixed_default_second() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import { Cat, Dog }, Elephant from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import Elephant from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_js_mixed_non_default_first() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import { Elephant }, Animal from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import { Elephant } from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
+fn gen_js_mixed_non_default_second() {
+    let hit = basic_hit(
+        "Elephant",
+        r#"import Animal, { Elephant } from 'animals.js';"#,
+        &DetectedLanguage::Js,
+    );
+
+    let expected = r#"import { Elephant } from 'animals.js';"#.to_string();
+    let actual = generate_import(&hit);
+
+    assert_eq!(actual, Ok(expected));
+}
+
+#[test]
 /// Fail to generate an import if the language is unsupported
 fn import_unsupported_language() {
     let hit = basic_hit("Potato", "#include<Potato.h>", &DetectedLanguage::Unknown);
