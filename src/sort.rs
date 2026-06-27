@@ -25,8 +25,13 @@ pub fn sort_hits(hits: &mut Vec<Hit>, mode: &SearchMode) -> () {
                     .unwrap_or(false)
         };
 
+        let is_relative = {
+            *mode == SearchMode::Import && (h.text.contains("..") || h.text.contains("./"))
+        };
+
         (
             leading_spaces,
+            !is_relative,
             has_body,
             h.filename.clone(),
             h.line.clone().unwrap_or(0),
