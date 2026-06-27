@@ -4,6 +4,13 @@ use super::*;
 // for consts as well; unfortunately this does mean we might get false positives for normal consts.
 const JS_FUNCTION_PATTERN: &str = r#"(?:function|const) (?:\(.+\) )?{}[\<\[\(: ]"#;
 
+// Respect class / function plus @class, @typedef, @enum etc. for jsdoc type definitions
+const JS_CLASS_PATTERN: &str = concat!(
+    r#"(?:(?:class|function) {}\h*(?:[\[\(\{{: ]|$))|"#,
+    r#"(?:@(?:class|typedef|instance|mixin|enum) \{[^\}]+\} {})"#,
+);
+
+
 struct JsSmartMode {}
 
 /// This is unfortunately copy-pasted from DefaultSmartMode except for using JS_FUNCTION_PATTERN
@@ -16,7 +23,7 @@ impl SmartMode for JsSmartMode {
             return JS_FUNCTION_PATTERN.to_owned();
         }
 
-        CLASS_PATTERN.to_owned()
+        JS_CLASS_PATTERN.to_owned()
     }
 }
 
@@ -24,7 +31,7 @@ pub(super) fn get_strategy() -> SearchStrategy {
     SearchStrategy::new(
         "{}",
         "{}",
-        CLASS_PATTERN,
+        JS_CLASS_PATTERN,
         JS_FUNCTION_PATTERN,
         IMPORT_PATTERN,
         Box::new(JsSmartMode {}),
