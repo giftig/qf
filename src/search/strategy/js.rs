@@ -6,8 +6,8 @@ const JS_FUNCTION_PATTERN: &str = r#"(?:function|const) (?:\(.+\) )?{}[\<\[\(: ]
 
 // Respect class / function plus @class, @typedef, @enum etc. for jsdoc type definitions
 const JS_CLASS_PATTERN: &str = concat!(
-    r#"(?:(?:class|function) {}\h*(?:[\[\(\{{: ]|$))|"#,
-    r#"(?:@(?:class|typedef|instance|mixin|enum) \{[^\}]+\} {})"#,
+    r#"(?:(?:class|function|const) {}\h*(?:[\[\(\{{: ]|$))|"#,
+    r#"(?:@(?:class|typedef|instance|mixin|enum) \{.+\} {})"#,
 );
 
 
